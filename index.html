@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Bölünebilme Düellosu</title>
+  <title>Bölünebilme Yağmuru</title>
   
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -28,7 +28,6 @@
       min-height: 100vh;
       overflow: hidden;
       color: #1E293B;
-      /* Özel resim ve üzerine okunaklılık için hafif koyu lacivert degrade */
       background: linear-gradient(to bottom, rgba(30, 41, 59, 0.75), rgba(15, 23, 42, 0.85)), url('bg.jpg');
       background-size: cover;
       background-position: center;
@@ -95,7 +94,7 @@
       transform: translateX(-50%); z-index: 0; display: none;
     }
 
-    /* Düşen Nesneler (Yaprak / Damla) */
+    /* Düşen Nesneler */
     #game-area { position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 1; pointer-events: none; }
     
     .falling-item {
@@ -113,7 +112,7 @@
       background: rgba(0,0,0,0.5); padding: 2px 8px; border-radius: 10px;
     }
 
-    /* Patlama ve Yanlış Animasyonları (PRO YENİ) */
+    /* Patlama ve Yanlış Animasyonları */
     @keyframes swayFall {
       0% { transform: translate(0, 0) rotate(-15deg); }
       25% { transform: translate(30px, 25vh) rotate(15deg); }
@@ -273,13 +272,9 @@
   <!-- Menüler Katmanı -->
   <div class="app-overlay" id="app-overlay">
     
-    <!-- BAŞLANGIÇ EKRANI -->
-    <div class="card" id="startScreen" style="position: relative;">
-      
-      <!-- AYARLAR TUŞU -->
-      <button onclick="openSettings()" style="position: absolute; top: 15px; right: 20px; background: transparent; border: none; font-size: 26px; cursor: pointer; transition: transform 0.3s;" onmouseover="this.style.transform='rotate(90deg)'" onmouseout="this.style.transform='rotate(0deg)'">⚙️</button>
-      
-      <h1 class="start-title">🍂 Sonbahar Yağmuru 🌧️</h1>
+    <!-- BAŞLANGIÇ EKRANI (AYARLAR TUŞU ÇIKARILDI) -->
+    <div class="card" id="startScreen">
+      <h1 class="start-title">🌧️ Bölünebilme Yağmuru 🍂</h1>
       <p class="start-subtitle">6. Sınıf Bölünebilme Kuralları Yarışması</p>
       
       <div style="display:flex; justify-content:center; gap:10px; margin-bottom: 20px;">
@@ -352,26 +347,6 @@
       <div class="cel-name" id="celName">Öğrenci</div>
       <div class="cel-score" id="celScore">0 Puan</div>
       <button class="btn-cel-close" onclick="closeCelebration()">👏 Alkışla ve Kapat</button>
-    </div>
-  </div>
-
-  <!-- AYARLAR MODALI -->
-  <div class="celebration-modal" id="settingsModal">
-    <div class="celebration-backdrop" onclick="closeSettings()"></div>
-    <div class="celebration-card" style="padding: 30px;">
-      <h2 class="start-title" style="font-size: 28px; margin-bottom: 20px;">⚙️ Ayarlar</h2>
-      
-      <div id="authSection">
-        <input type="password" id="adminPassword" class="input-player" placeholder="Yönetici Şifresi" style="margin-bottom: 15px;">
-        <button class="btn-start" style="font-size: 18px; padding: 12px;" onclick="checkAdminPassword()">Giriş Yap</button>
-      </div>
-
-      <div id="adminSection" style="display: none;">
-        <p style="margin-bottom: 15px; font-weight: 700; color: #475569;">Yönetici paneline hoş geldiniz.</p>
-        <button class="btn-start" style="font-size: 18px; padding: 12px; background: linear-gradient(135deg, #EF4444, #B91C1C); box-shadow: 0 8px 20px rgba(239, 68, 68, 0.4);" onclick="clearLeaderboard()">🗑️ Tüm Skorları Sıfırla</button>
-      </div>
-
-      <button class="btn-subtle" style="margin-top: 20px; width: 100%;" onclick="closeSettings()">Kapat</button>
     </div>
   </div>
 
@@ -545,15 +520,14 @@
       }
     }
 
-        function setQuestion(playerNum) {
+    function setQuestion(playerNum) {
       let current = (playerNum === 1) ? p1.currentDiv : p2.currentDiv;
       
-      // Mevcut sorudaki sayıyı listeden çıkar ki üst üste AYNISI gelmesin!
+      // Mevcut kuralı listeden çıkar, her zaman YENİ bir kural seç
       let availableDivs = divisors.filter(d => d !== current);
       let div = availableDivs[Math.floor(Math.random() * availableDivs.length)];
       
       let text = `Hangisi <span style="color:#FDE047; font-size:24px;">${div}</span> ile bölünür?`;
-      
       if(playerNum === 1) {
         p1.currentDiv = div;
         document.getElementById('p1-question').innerHTML = text;
@@ -644,7 +618,6 @@
       ft.style.transition = 'all 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
       document.body.appendChild(ft);
       
-      // CSS Tetiklemesi
       ft.getBoundingClientRect();
       ft.style.transform = 'translate(-50%, -80px) scale(1.5)';
       ft.style.opacity = '0';
@@ -665,7 +638,7 @@
       effectDiv.style.height = rect.height + 'px';
       effectDiv.style.zIndex = '999';
       effectDiv.setAttribute('data-icon', element.getAttribute('data-icon'));
-      effectDiv.style.animation = 'none'; // Aşağı düşmeyi durdur
+      effectDiv.style.animation = 'none';
       
       let span = document.createElement('span');
       span.style.background = "transparent";
@@ -685,7 +658,7 @@
       effectDiv.appendChild(span);
       document.body.appendChild(effectDiv);
       
-      element.remove(); // Eskisini hemen sil
+      element.remove();
       setTimeout(() => effectDiv.remove(), 600);
     }
 
@@ -700,7 +673,7 @@
       let leftPos = isAny ? (Math.random() * 80 + 10) : (isLeft ? (Math.random() * 40 + 5) : (Math.random() * 40 + 55));
       obj.style.left = leftPos + '%';
       
-      let speed = Math.floor(Math.random() * 4) + 6; // 6-9s
+      let speed = Math.floor(Math.random() * 4) + 6;
       let icons = ['🍂', '🍁', '💧'];
       let icon = icons[Math.floor(Math.random() * icons.length)];
       obj.setAttribute('data-icon', icon);
@@ -741,7 +714,7 @@
           });
 
         } else {
-          player.score -= 5; // Puan kaybetme devrede! (Eksiye de düşebilir)
+          player.score -= 5;
           popEffect(this, false);
         }
         updateScores();
@@ -813,51 +786,6 @@
       requestAnimationFrame(animateConfetti);
     }
     animateConfetti();
-
-    /* ==============================
-       AYARLAR VE SIFIRLAMA
-       ============================== */
-    function openSettings() {
-      document.getElementById('settingsModal').style.display = 'flex';
-      
-      if (localStorage.getItem('isAdmin_bolunebilme') === 'true') {
-        document.getElementById('authSection').style.display = 'none';
-        document.getElementById('adminSection').style.display = 'block';
-      } else {
-        document.getElementById('authSection').style.display = 'block';
-        document.getElementById('adminSection').style.display = 'none';
-        document.getElementById('adminPassword').value = '';
-      }
-    }
-
-    function closeSettings() {
-      document.getElementById('settingsModal').style.display = 'none';
-    }
-
-    function checkAdminPassword() {
-      const pwd = document.getElementById('adminPassword').value;
-      if (pwd === '26575982824.bati') {
-        localStorage.setItem('isAdmin_bolunebilme', 'true');
-        document.getElementById('authSection').style.display = 'none';
-        document.getElementById('adminSection').style.display = 'block';
-      } else {
-        alert('Hatalı şifre! Lütfen tekrar deneyin.');
-      }
-    }
-
-    function clearLeaderboard() {
-      if (confirm('Tüm lider tablosu hem veritabanından hem de bu cihazdan kalıcı olarak silinecek. Emin misiniz?')) {
-        if (cloudDb) {
-          cloudDb.ref(DB_NODE).remove();
-        } else {
-          fetch(`${FIREBASE_CONFIG.databaseURL}/${DB_NODE}.json`, { method: 'DELETE' });
-        }
-        localStorage.removeItem('meb_bolunebilme_top10');
-        renderLeaderboard();
-        alert('Lider tablosu başarıyla sıfırlandı.');
-        closeSettings();
-      }
-    }
   </script>
 </body>
 </html>
