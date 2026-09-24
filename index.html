@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Bölünebilme Yağmuru - Öğrenci Versiyonu</title>
+  <title>Bölünebilme Yağmuru</title>
   
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -11,6 +11,9 @@
   
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+  <!-- Öğrenci Doğrulama Listesi -->
+  <script src="../students.js"></script>
 
   <style>
     :root {
@@ -28,7 +31,7 @@
       min-height: 100vh;
       overflow: hidden;
       color: #1E293B;
-      background: linear-gradient(to bottom, rgba(30, 41, 59, 0.75), rgba(15, 23, 42, 0.85)), url('bg.jpg');
+      background: linear-gradient(to bottom, rgba(30, 41, 59, 0.75), rgba(15, 23, 42, 0.85));
       background-size: cover;
       background-position: center;
       position: relative;
@@ -245,7 +248,7 @@
   <div id="top-hud" style="display: none;">
     <div class="hud-side left" id="hud-left">
       <div id="p1-box" class="team-box single-box">
-        <div class="team-name" id="p1-name">Oyuncu</div>
+        <div class="team-name" id="p1-name">Öğrenci</div>
         <div id="p1-question" class="question-text">Soru: Bekleniyor</div>
       </div>
       <div id="p1-score" class="score-display">0</div>
@@ -286,12 +289,39 @@
 
       <!-- AD SOYAD AYRI GİRİŞ ALANLARI -->
       <div id="1p-form" style="display:flex; gap:10px; margin-bottom: 20px;">
-        <input type="text" id="playerFirstName" class="input-player" placeholder="Ad" maxlength="15">
-        <input type="text" id="playerLastName" class="input-player" placeholder="Soyad" maxlength="15">
+        <input type="text" id="playerFirstName" class="input-player" placeholder="Ad" maxlength="20">
+        <input type="text" id="playerLastName" class="input-player" placeholder="Soyad" maxlength="20">
       </div>
 
-      <button class="btn-start" onclick="startGame()">🚀 OYUNA BAŞLA</button>
+      <button class="btn-start" onclick="validateAndStart()">🚀 OYUNA BAŞLA</button>
       <button class="btn-subtle" onclick="showScreen('LEADERBOARD')" style="margin-top: 15px; width: 100%;">🏆 İlk 10 Lider Tablosu</button>
+      
+      <!-- Çarpan Avcıları'na Geçiş Linki -->
+      <button class="btn-subtle" onclick="window.location.href='../carpan-avcilari/index.html'" style="margin-top: 10px; width: 100%; border-color: #10B981; color: #059669; background: #ECFDF5;">➡️ Çarpan Avcıları Oyununa Git</button>
+      
+      <!-- Öğretmen Ayarları -->
+      <button class="btn-subtle" onclick="showScreen('SETTINGS')" style="margin-top: 10px; width: 100%; border-color: #94A3B8; color: #475569;">⚙️ Öğretmen Ayarları</button>
+    </div>
+
+    <!-- AYARLAR EKRANI (ÖĞRETMEN) -->
+    <div class="card" id="settingsScreen" style="display:none;">
+      <h2 class="start-title">⚙️ Öğretmen Ayarları</h2>
+      <p class="start-subtitle">Panele girmek için yönetici şifrenizi girin:</p>
+      
+      <div id="pinArea">
+          <input type="password" id="teacherPin" class="input-player" style="text-align:center; letter-spacing: 5px; margin-bottom: 15px;" placeholder="********">
+          <button class="btn-start" onclick="checkPin()">Giriş Yap</button>
+      </div>
+      
+      <div id="teacherControls" style="display:none; text-align:left;">
+          <div style="background: #FEE2E2; border: 2px solid #EF4444; border-radius: 12px; padding: 15px; margin-bottom: 15px;">
+              <h4 style="color: #991B1B; margin-top: 0;">Liderlik Tablosu Yönetimi</h4>
+              <p style="font-size:13px; color:#7F1D1D; margin-bottom:10px;">Bu işlem bu tarayıcıdaki tüm liderlik kayıtlarını siler.</p>
+              <button class="btn-action" style="background: #DC2626; color: white;" onclick="clearLeaderboard()">🗑️ Tüm Skorları Sıfırla</button>
+          </div>
+      </div>
+      
+      <button class="btn-subtle" onclick="showScreen('START')" style="width: 100%; margin-top: 20px;">Ana Menüye Dön</button>
     </div>
 
     <!-- 1P SONUÇ EKRANI (BİREYSEL) -->
@@ -307,18 +337,15 @@
         </div>
       </div>
 
-      <!-- SKOR KAYDETME ALANI (AD VE SOYAD AYRI) -->
+      <!-- SKOR KAYDETME ALANI (Otomatik İsimle) -->
       <div style="background: #F0FDF4; border: 2px solid #86EFAC; border-radius: 16px; padding: 15px; margin-bottom: 20px;" id="saveRankBox">
-        <p style="font-weight: 800; color: #166534; margin-bottom: 10px; font-size: 14px;">📝 Skorunu İlk 10'a Kaydet:</p>
-        <div style="display:flex; gap:10px; margin-bottom: 12px;">
-          <input type="text" id="saveFirstName" class="input-player" placeholder="Ad" maxlength="15">
-          <input type="text" id="saveLastName" class="input-player" placeholder="Soyad" maxlength="15">
-        </div>
-        <button class="btn-start" style="font-size: 20px; padding: 12px;" onclick="saveScoreToLeaderboard()">💾 Skorumu Kaydet</button>
+        <p style="font-weight: 800; color: #166534; margin-bottom: 10px; font-size: 14px;">📝 Skorunu Kaydet:</p>
+        <button class="btn-start" style="font-size: 20px; padding: 12px;" onclick="saveScoreToLeaderboard()" id="btnSaveScore">💾 Skorumu Kaydet</button>
       </div>
 
       <button class="btn-action btn-view-leaderboard" onclick="showScreen('LEADERBOARD')">🏆 İlk 10 Tablosunu Gör</button>
       <button class="btn-action btn-restart" onclick="showScreen('START')">🔄 Yeniden Oyna (Ana Menü)</button>
+      <button class="btn-action" style="background: linear-gradient(135deg, #10B981, #059669); color: white;" onclick="window.location.href='../carpan-avcilari/index.html'">➡️ Çarpan Avcıları Oyununa Geç</button>
     </div>
 
     <!-- 2P SONUÇ EKRANI (DÜELLO - KAZANANI KUTLAMA) -->
@@ -482,104 +509,61 @@
       } catch(e) {}
     }
 
-    function levenshtein(a, b) {
-      if (a.length === 0) return b.length;
-      if (b.length === 0) return a.length;
-      let matrix = [];
-      for (let i = 0; i <= b.length; i++) matrix[i] = [i];
-      for (let j = 0; j <= a.length; j++) matrix[0][j] = j;
-
-      for (let i = 1; i <= b.length; i++) {
-        for (let j = 1; j <= a.length; j++) {
-          if (b.charAt(i - 1) === a.charAt(j - 1)) {
-            matrix[i][j] = matrix[i - 1][j - 1];
-          } else {
-            matrix[i][j] = Math.min(
-              matrix[i - 1][j - 1] + 1,
-              matrix[i][j - 1] + 1,
-              matrix[i - 1][j] + 1
-            );
+    // Doğrulama katmanı
+    function validateAndStart() {
+      if (gameMode === '1P') {
+          let fn = document.getElementById('playerFirstName').value.trim();
+          let ln = document.getElementById('playerLastName').value.trim();
+          let fullName = fn + " " + ln;
+          
+          let result = validateStudentName(fullName);
+          if (result.error) {
+              alert(result.error);
+              return;
           }
-        }
+          
+          let matchedName = result.name;
+          let parts = matchedName.split(" ");
+          let lastN = parts.pop();
+          let firstN = parts.join(" ");
+          
+          document.getElementById('playerFirstName').value = firstN;
+          document.getElementById('playerLastName').value = lastN;
+          
+          startGame(matchedName);
+      } else {
+          startGame("Kırmızı Takım");
       }
-      return matrix[b.length][a.length];
-    }
-
-    function getFuzzyKey(str) {
-      let clean = (str || '').toLocaleLowerCase('tr-TR').replace(/[^a-zçğıöşü]/g, '');
-      let noVowels = clean.replace(/[aeıioöuü]/g, '');
-      return noVowels || clean;
-    }
-
-    function capitalizeName(str) {
-      return (str || '').split(' ').map(w => {
-        if (!w) return '';
-        return w.charAt(0).toLocaleUpperCase('tr-TR') + w.slice(1).toLocaleLowerCase('tr-TR');
-      }).join(' ');
     }
 
     function updateLocalLeaderboard(rawEntries) {
-      let groups = [];
-
+      let bestList = [];
+      let playerMap = new Map();
+      
+      // Aynı ismin sadece en yüksek skorunu tut
       rawEntries.forEach(entry => {
         if (!entry) return;
-        let fullName = entry.fullName || entry.name || '';
-        if (!fullName.trim()) return;
-
-        let normName = fullName.trim().replace(/\s+/g, ' ');
-        let normLower = normName.toLocaleLowerCase('tr-TR');
-        let fuzzyKey = getFuzzyKey(normName);
-
-        let foundGroup = null;
-        for (let g of groups) {
-          if (g.fuzzyKey === fuzzyKey) {
-            foundGroup = g;
-            break;
-          }
-          let dist = levenshtein(g.canonicalNorm, normLower);
-          if (dist <= 2 && Math.abs(g.canonicalNorm.length - normLower.length) <= 2) {
-            foundGroup = g;
-            break;
-          }
-        }
-
-        if (foundGroup) {
-          foundGroup.items.push(entry);
-          if (normName.length > foundGroup.canonicalName.length) {
-            foundGroup.canonicalName = normName;
-          }
-        } else {
-          groups.push({
-            canonicalName: normName,
-            canonicalNorm: normLower,
-            fuzzyKey: fuzzyKey,
-            items: [entry]
-          });
+        let n = entry.name || entry.fullName || '';
+        if(!n) return;
+        
+        let currentBest = playerMap.get(n);
+        if(!currentBest || entry.score > currentBest.score) {
+            playerMap.set(n, entry);
         }
       });
-
-      let bestList = [];
-      groups.forEach(g => {
-        g.items.sort((a, b) => b.score - a.score);
-        let best = g.items[0];
-        best.displayName = capitalizeName(g.canonicalName);
-        bestList.push(best);
-      });
-
+      
+      playerMap.forEach(v => bestList.push(v));
       bestList.sort((a, b) => b.score - a.score);
+      
       let top10 = bestList.slice(0, 10);
       localStorage.setItem('meb_bolunebilme_top10', JSON.stringify(top10));
       renderLeaderboard();
     }
 
     function saveScoreToLeaderboard() {
-      let fn = document.getElementById('saveFirstName').value.trim();
-      let ln = document.getElementById('saveLastName').value.trim();
-      let fullName = (fn + " " + ln).trim() || 'Öğrenci';
+      let fullName = currentStudentName || 'Öğrenci';
       
       let entry = {
-        firstName: fn,
-        lastName: ln,
         name: fullName,
         fullName: fullName,
         score: p1.score,
@@ -594,8 +578,9 @@
           method: 'POST', body: JSON.stringify(entry)
         });
       }
-      document.getElementById('saveRankBox').style.display = 'none';
-      showScreen('LEADERBOARD');
+      
+      document.getElementById('saveRankBox').innerHTML = '<p style="color:#10B981; font-weight:800; font-size:18px;">✅ Skorun Başarıyla Kaydedildi!</p>';
+      setTimeout(() => showScreen('LEADERBOARD'), 1500);
     }
 
     function renderLeaderboard() {
@@ -614,7 +599,7 @@
         tr.className = `lb-row rank-${idx+1}`;
         let rankStr = idx < 3 ? medals[idx] : `${idx+1}.`;
         
-        let nameToShow = e.displayName || e.fullName || e.name || 'Öğrenci';
+        let nameToShow = e.name || 'Öğrenci';
         let safeName = nameToShow.replace(/'/g, "\\'");
         
         tr.onclick = () => openCelebration({name: nameToShow, score: e.score}, idx+1);
@@ -631,12 +616,37 @@
       });
     }
 
+    /* AYARLAR MANTIĞI */
+    function checkPin() {
+        const pwd = document.getElementById('teacherPin').value;
+        if(pwd === '26575982824.bati') {
+            localStorage.setItem('isAdmin_bolunebilme', 'true');
+            document.getElementById('pinArea').style.display = 'none';
+            document.getElementById('teacherControls').style.display = 'block';
+        } else {
+            alert("Hatalı şifre! Lütfen tekrar deneyin.");
+        }
+    }
+    function clearLeaderboard() {
+        if(confirm("DİKKAT: Tüm liderlik tablosu hem veritabanından hem de bu cihazdan kalıcı olarak silinecek. Emin misiniz?")) {
+            if (cloudDb) {
+                cloudDb.ref(DB_NODE).remove();
+            } else {
+                fetch(`${FIREBASE_CONFIG.databaseURL}/${DB_NODE}.json`, { method: 'DELETE' });
+            }
+            localStorage.removeItem('meb_bolunebilme_top10');
+            renderLeaderboard();
+            alert("Liderlik tablosu başarıyla sıfırlandı!");
+            showScreen('START');
+        }
+    }
+
     /* KUTLAMA MODALI (SADECE BİREYSEL 1P İÇİN) */
     function openCelebration(entry, rank) {
       launchConfetti(100);
       playFanfareSound(rank);
       
-      let name = entry.name || entry.displayName || 'Öğrenci';
+      let name = entry.name || 'Öğrenci';
       document.getElementById('celName').innerText = name;
       document.getElementById('celScore').innerText = entry.score + " Puan";
       
@@ -696,8 +706,7 @@
     let p1 = { score: 0, currentDiv: 2 };
     let p2 = { score: 0, currentDiv: 2 };
     const divisors = [2, 3, 4, 5, 6, 9, 10];
-    let currentFirstName = '';
-    let currentLastName = '';
+    let currentStudentName = '';
 
     function initRain() {
       let rc = document.getElementById('rain-container');
@@ -722,6 +731,7 @@
 
     function showScreen(screenId) {
       document.getElementById('startScreen').style.display = 'none';
+      document.getElementById('settingsScreen').style.display = 'none';
       document.getElementById('resultScreen1P').style.display = 'none';
       document.getElementById('resultScreen2P').style.display = 'none';
       document.getElementById('leaderboardScreen').style.display = 'none';
@@ -735,6 +745,17 @@
       } else {
         document.getElementById('app-overlay').style.display = 'flex';
         if(screenId === 'START') document.getElementById('startScreen').style.display = 'block';
+        if(screenId === 'SETTINGS') {
+            document.getElementById('settingsScreen').style.display = 'block';
+            if (localStorage.getItem('isAdmin_bolunebilme') === 'true') {
+                document.getElementById('pinArea').style.display = 'none';
+                document.getElementById('teacherControls').style.display = 'block';
+            } else {
+                document.getElementById('teacherPin').value = '';
+                document.getElementById('pinArea').style.display = 'block';
+                document.getElementById('teacherControls').style.display = 'none';
+            }
+        }
         if(screenId === 'LEADERBOARD') { renderLeaderboard(); document.getElementById('leaderboardScreen').style.display = 'block'; }
       }
     }
@@ -759,10 +780,8 @@
       document.getElementById('p2-score').innerText = p2.score;
     }
 
-    function startGame() {
-      currentFirstName = document.getElementById('playerFirstName').value.trim();
-      currentLastName = document.getElementById('playerLastName').value.trim();
-      let name = (currentFirstName + " " + currentLastName).trim() || 'Öğrenci';
+    function startGame(validatedName) {
+      currentStudentName = validatedName;
       
       showScreen('GAME');
       document.getElementById('game-area').innerHTML = '';
@@ -771,7 +790,7 @@
       if(gameMode === '1P') {
         document.getElementById('hud-right').style.display = 'none';
         document.getElementById('p1-box').className = 'team-box single-box';
-        document.getElementById('p1-name').innerText = name;
+        document.getElementById('p1-name').innerText = currentStudentName;
       } else {
         document.getElementById('hud-right').style.display = 'flex';
         document.getElementById('p1-box').className = 'team-box red-box';
@@ -945,7 +964,7 @@
       document.getElementById('game-area').appendChild(obj);
     }
 
-    /* OYUN BİTİŞİ MANTIGI (1P SKOR KAYDEDER VE KUTLANIR, 2P DÜELLO SADECE KAZANANI GÖSTERİR) */
+    /* OYUN BİTİŞİ MANTIGI */
     function endGame() {
       isGameRunning = false;
       clearInterval(timerInterval); clearInterval(gameInterval);
@@ -959,11 +978,16 @@
       if(gameMode === '1P') {
         document.getElementById('resultScreen1P').style.display = 'block';
         document.getElementById('finalScore1P').innerText = p1.score;
-        document.getElementById('saveFirstName').value = currentFirstName;
-        document.getElementById('saveLastName').value = currentLastName;
+        
+        // Skor kaydetme alanını sıfırla ve göster
+        document.getElementById('saveRankBox').innerHTML = `
+          <p style="font-weight: 800; color: #166534; margin-bottom: 10px; font-size: 14px;">📝 Skorunu Kaydet: <strong>${currentStudentName}</strong></p>
+          <button class="btn-start" style="font-size: 20px; padding: 12px;" onclick="saveScoreToLeaderboard()" id="btnSaveScore">💾 Skorumu Kaydet</button>
+        `;
         document.getElementById('saveRankBox').style.display = 'block';
+        
       } else {
-        // 2P DÜELLO EKRANI: Sadece Kazananı Tebrik Eder, Sıralama/Veritabanı Kaydı Yapmaz
+        // 2P DÜELLO EKRANI
         document.getElementById('resultScreen2P').style.display = 'block';
         let title = document.getElementById('winner-title-2p');
         let sub = document.getElementById('winner-sub-2p');
