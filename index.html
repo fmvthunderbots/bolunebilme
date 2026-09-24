@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="tr">
 <head>
   <meta charset="UTF-8">
@@ -13,7 +13,66 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
   <!-- Öğrenci Doğrulama Listesi -->
-  <script src="../students.js"></script>
+  <script>
+const studentList = [
+    "Alp Mete KURU", "Alp ÖZ", "Ayaz Ali YILDIZ", "Beren NEZİROĞULULARI", "Cem Çınar DUMAN", "Defne AYTAK", "Defne TOPAL", "Demir Ali KAYA", "Deniz ÇİM", "Deniz PINDIKOĞLU", "Derin HOBAT", "Duru İŞERİ", "Elif DULUNDU", "Elis DEMİR", "Kuzey KURTULDU", "Kürşat Gökdeniz BEKTAŞ", "Meryem ŞEN", "Ömer Sadettin KELEŞ", "Serhat Yaman AĞIRMAN", "Tanem Lal KAVAKLI", "Yusuf EREN", "Yusuf Yankı EKİZ", "Zeynep KIZILKAYA",
+    "Ada USTA", "Alp Efe IŞIK", "Arya SAĞLIK", "Ayşe Ada YEŞİLYURT", "Bartu UÇAR", "Beren BULCA", "Bilge Naz ÖZCAN", "Defne ERÇEL", "Doruk ÇETİN", "Ela ALDEMİR", "Eren ÖZEL", "Eren TURANBARANOĞLU", "Kerem ÖZTÜRK", "Mehmet Ali ÇEMBERCİ", "Mercan GÖZÜKÜÇÜK", "Mihrimah Ela YILDIRIM", "Nikan KAYA", "Nil TABAK", "Selis TAHA", "Şevval ÖZTÜRK", "Tuna DEMİRER", "Zeynep BİLİR", "Zeynep Züleyha GEYİK",
+    "Ahmet Mutay ERDEM", "Alara Derin ÖZYER", "Ata İRGİ", "Beyza Betül HORUZ", "Beyza KARTAL", "Mert ÖZEL", "Yiğit Arda MART", "Defne ÇİM", "Melis COŞKUNER", "Demir TÜLÜ", "Ece ÜSTÜNDAĞ", "Ege SARI", "İpek Nazlı DOLU", "Kaan ÇALIŞKAN", "Kerem TUNÇYÜREK", "Kerem ÜNAL", "Kutay ÇOLAK", "Lina ÖZTAN", "Mira DAL", "Mustafa Yağız AVCI", "Nisan ÖZLÜK", "Ömer BARAN AYTEMÜR", "Yağmur SEZER",
+    "Alp KORALAY", "Bürçe Tuba KURT", "Can AKTAŞ", "Can AYTAK", "Çınar Berkay KILINÇ", "Defne TINAZ", "Derin Asel ASLAN", "Devrim ÖZGER", "Elif YILMAZ", "Emir TURANBARANOĞLU", "Emre ÖNEY", "Hüseyin Rüzgar SAĞLAM", "Mahmut Ali AYDIN", "Melis Nora ERSAN", "Melih Burak YAĞAR", "Melisa ESMER", "Mira ŞAHİN", "Mustafa Altuğ YAĞIZ", "Mustafa Kadir ARSLANOĞLU", "Sedef GÜNEŞLİ", "Serra SIRDAŞ", "Zeynep Alya EROL", "Zeynep VURUCU",
+    "Ali ATİLA", "Ali OĞUZ", "Alya EKMEN", "Alya ÖZPİ", "Ata Yılmaz ŞAHİN", "Ayşe Beren ULU", "Güney DÜZGÜN", "Çağan AKÇA", "Doğa ATEŞ", "Dora Ilgın GÜRSOY", "Doruk DUYMAÇ", "Ela EMİROĞLU", "Elif KILINÇ", "Gökçe TABAK", "Emir ÜNAL", "İnan ALDEMİR", "Kerem IŞIK", "Nisa ÖZVARDAR", "Perisu MURATHAN", "Poyraz Ahmed AYDINALP", "Rüzgar KIRALİ", "Yiğit Ali KOÇ"
+];
+
+function normalizeForSearch(str) {
+    return str.toLocaleLowerCase('tr-TR')
+        .replace(/[^a-zçğıöşü]/g, '')
+        .replace(/[aeıioöuü]/g, '');
+}
+
+function validateStudentName(inputStr) {
+    let inputParts = inputStr.toLocaleLowerCase('tr-TR').trim().split(/\s+/).filter(x => x.length > 0);
+    
+    if (inputParts.length < 2) {
+        return { error: "Lütfen adınızı ve soyadınızı aralarında boşluk bırakarak tam girin.\n(Örn: Zeynep Demir)" };
+    }
+    
+    let matches = [];
+    for (let student of studentList) {
+        let stdParts = student.toLocaleLowerCase('tr-TR').split(/\s+/);
+        
+        let matchScore = 0;
+        let matchedParts = 0;
+        
+        for (let ip of inputParts) {
+            let ipNorm = normalizeForSearch(ip);
+            let partMatched = false;
+            for (let sp of stdParts) {
+                let spNorm = normalizeForSearch(sp);
+                if (sp === ip) {
+                    matchScore += 2; partMatched = true;
+                } else if (sp.startsWith(ip) || ip.startsWith(sp)) {
+                    matchScore += 1; partMatched = true;
+                } else if (spNorm.length > 0 && ipNorm.length > 0 && spNorm === ipNorm) {
+                    matchScore += 1; partMatched = true;
+                }
+            }
+            if(partMatched) matchedParts++;
+        }
+        
+        // Match conditions: matched multiple words
+        if (matchedParts === inputParts.length || matchedParts >= 2) {
+            matches.push({ student, score: matchScore + matchedParts });
+        }
+    }
+    
+    if (matches.length > 0) {
+        matches.sort((a,b) => b.score - a.score);
+        return { success: true, name: matches[0].student };
+    }
+    
+    return { error: "İsminiz Öğrenci Listesinde bulunamadı! 👽\n\nLütfen uzaylı isimleri girmeyin. Sadece kendi adınızı ve soyadınızı doğru yazdığınızdan emin olun." };
+}
+
+    </script>
 
   <style>
     :root {
@@ -297,7 +356,7 @@
       <button class="btn-subtle" onclick="showScreen('LEADERBOARD')" style="margin-top: 15px; width: 100%;">🏆 İlk 10 Lider Tablosu</button>
       
       <!-- Çarpan Avcıları'na Geçiş Linki -->
-      <button class="btn-subtle" onclick="window.location.href='../carpan-avcilari/index.html'" style="margin-top: 10px; width: 100%; border-color: #10B981; color: #059669; background: #ECFDF5;">➡️ Çarpan Avcıları Oyununa Git</button>
+      <button class="btn-subtle" onclick="window.location.href='carpanlar.html'" style="margin-top: 10px; width: 100%; border-color: #10B981; color: #059669; background: #ECFDF5;">➡️ Çarpan Avcıları Oyununa Git</button>
       
       <!-- Öğretmen Ayarları -->
       <button class="btn-subtle" onclick="showScreen('SETTINGS')" style="margin-top: 10px; width: 100%; border-color: #94A3B8; color: #475569;">⚙️ Öğretmen Ayarları</button>
@@ -345,7 +404,7 @@
 
       <button class="btn-action btn-view-leaderboard" onclick="showScreen('LEADERBOARD')">🏆 İlk 10 Tablosunu Gör</button>
       <button class="btn-action btn-restart" onclick="showScreen('START')">🔄 Yeniden Oyna (Ana Menü)</button>
-      <button class="btn-action" style="background: linear-gradient(135deg, #10B981, #059669); color: white;" onclick="window.location.href='../carpan-avcilari/index.html'">➡️ Çarpan Avcıları Oyununa Geç</button>
+      <button class="btn-action" style="background: linear-gradient(135deg, #10B981, #059669); color: white;" onclick="window.location.href='carpanlar.html'">➡️ Çarpan Avcıları Oyununa Geç</button>
     </div>
 
     <!-- 2P SONUÇ EKRANI (DÜELLO - KAZANANI KUTLAMA) -->
