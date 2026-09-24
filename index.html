@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Bölünebilme Yağmuru</title>
+  <title>Bölünebilme Yağmuru - Öğrenci Versiyonu</title>
   
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -275,7 +275,7 @@
   <div class="app-overlay" id="app-overlay">
     
     <!-- BAŞLANGIÇ EKRANI -->
-    <div class="card" id="startScreen">
+    <div class="card" id="startScreen" style="position: relative;">
       <h1 class="start-title">🌧️ Bölünebilme Yağmuru 🍂</h1>
       <p class="start-subtitle">6. Sınıf Bölünebilme Kuralları Yarışması</p>
       
@@ -294,7 +294,7 @@
       <button class="btn-subtle" onclick="showScreen('LEADERBOARD')" style="margin-top: 15px; width: 100%;">🏆 İlk 10 Lider Tablosu</button>
     </div>
 
-    <!-- 1P SONUÇ EKRANI -->
+    <!-- 1P SONUÇ EKRANI (BİREYSEL) -->
     <div class="card" id="resultScreen1P" style="display:none;">
       <div style="font-size: 60px; margin-bottom: 10px;">🏆</div>
       <h2 class="start-title">Oyun Bitti!</h2>
@@ -314,17 +314,18 @@
           <input type="text" id="saveFirstName" class="input-player" placeholder="Ad" maxlength="15">
           <input type="text" id="saveLastName" class="input-player" placeholder="Soyad" maxlength="15">
         </div>
-        <button class="btn-start" style="padding: 12px; font-size: 20px;" onclick="saveScoreToLeaderboard()">💾 Skoru Kaydet</button>
+        <button class="btn-start" style="font-size: 20px; padding: 12px;" onclick="saveScoreToLeaderboard()">💾 Skorumu Kaydet</button>
       </div>
 
       <button class="btn-action btn-view-leaderboard" onclick="showScreen('LEADERBOARD')">🏆 İlk 10 Tablosunu Gör</button>
       <button class="btn-action btn-restart" onclick="showScreen('START')">🔄 Yeniden Oyna (Ana Menü)</button>
     </div>
 
-    <!-- 2P SONUÇ EKRANI (PRO SKOR TABLOSU) -->
+    <!-- 2P SONUÇ EKRANI (DÜELLO - KAZANANI KUTLAMA) -->
     <div class="card" id="resultScreen2P" style="display:none;">
       <div style="font-size: 70px; margin-bottom: 10px;">⚔️</div>
       <h2 class="start-title" id="winner-title-2p">Kazanan Belli Oldu!</h2>
+      <p class="start-subtitle" id="winner-sub-2p" style="margin-bottom:15px;">Harika bir mücadele gerçekleşti!</p>
       
       <!-- PRO SKOR TABLOSU (VS KARTLARI) -->
       <div style="display:flex; justify-content:center; align-items:center; gap:15px; margin: 24px 0;">
@@ -449,7 +450,6 @@
         });
       } catch(e) {}
     }
-
 
     /* ==============================
        FİREBASE VE AKILLI LİDER TABLOSU
@@ -631,6 +631,7 @@
       });
     }
 
+    /* KUTLAMA MODALI (SADECE BİREYSEL 1P İÇİN) */
     function openCelebration(entry, rank) {
       launchConfetti(100);
       playFanfareSound(rank);
@@ -648,30 +649,30 @@
       
       if (rank === 1) {
         icon.innerText = "🥇";
-        title.innerText = "👑 1. SIRA ŞAMPİYONU!";
+        title.innerText = "👑 BÖLÜNEBİLME KRALI / KRALİÇESİ!";
         title.style.color = "#D97706";
-        msg.innerText = "ŞAMPİYON! Altın madalyayı kaptın! Bölünebilme kurallarının krallığı/kraliçeliği artık tamamen senin!";
+        msg.innerText = "İNANILMAZ BİR PERFORMANS! Sayılar adeta senin önünde eğiliyor. Zirvenin sahibi sensin, altın madalyayı sonuna kadar hak ettin!";
         card.style.border = "4px solid #F59E0B";
         card.style.background = "linear-gradient(180deg, #FEF3C7 0%, #FFFFFF 100%)";
       } else if (rank === 2) {
         icon.innerText = "🥈";
-        title.innerText = "⚡ 2. SIRA ZİRVE ORTAĞI!";
+        title.innerText = "⚡ GÜMÜŞ MADALYA ŞAMPİYONU!";
         title.style.color = "#475569";
-        msg.innerText = "HARİKASIN! Gümüş madalyayı boynuna taktın! Birincilik tahtına ramak kaldı!";
+        msg.innerText = "MÜTHİŞ BİR BAŞARI! Olağanüstü hızın ve keskin zekanla Gümüş Madalyayı boynuna taktın! Seni ayakta alkışlıyoruz!";
         card.style.border = "4px solid #94A3B8";
         card.style.background = "linear-gradient(180deg, #F1F5F9 0%, #FFFFFF 100%)";
       } else if (rank === 3) {
         icon.innerText = "🥉";
-        title.innerText = "🔥 3. SIRA KÜRSÜ SAHİBİ!";
+        title.innerText = "🔥 BRONZ MADALYA ŞAMPİYONU!";
         title.style.color = "#C2410C";
-        msg.innerText = "TEBRİKLER! Bronz madalyayı kazandın! Adını ilk 3 kürsüsüne altın harflerle yazdırdın!";
+        msg.innerText = "HARİKASIN! Gösterdiğin üstün performansla podyuma çıkıp Bronz Madalyayı kazandın! Bu gurur tamamen senin!";
         card.style.border = "4px solid #F97316";
         card.style.background = "linear-gradient(180deg, #FFEDD5 0%, #FFFFFF 100%)";
       } else {
         icon.innerText = "🎖️";
         title.innerText = `${rank}. SIRA BAŞARI ÖDÜLÜ`;
         title.style.color = "#4F46E5";
-        msg.innerText = `TEBRİKLER! Muhteşem bir performans sergileyerek ${rank}. olarak İlk 10 Lider Tablosuna girmeyi başardın!`;
+        msg.innerText = `TEBRİKLER! Harika bir odaklanmayla ${rank}. olarak İlk 10 Lider Tablosuna adını gururla yazdırdın!`;
         card.style.border = "4px solid #6366F1";
         card.style.background = "linear-gradient(180deg, #EEF2FF 0%, #FFFFFF 100%)";
       }
@@ -683,7 +684,6 @@
       playCloseSound();
       document.getElementById('celebrationModal').style.display = 'none';
     }
-
 
     /* ==============================
        OYUN MOTORU VE MANTIK
@@ -945,6 +945,7 @@
       document.getElementById('game-area').appendChild(obj);
     }
 
+    /* OYUN BİTİŞİ MANTIGI (1P SKOR KAYDEDER VE KUTLANIR, 2P DÜELLO SADECE KAZANANI GÖSTERİR) */
     function endGame() {
       isGameRunning = false;
       clearInterval(timerInterval); clearInterval(gameInterval);
@@ -962,14 +963,28 @@
         document.getElementById('saveLastName').value = currentLastName;
         document.getElementById('saveRankBox').style.display = 'block';
       } else {
+        // 2P DÜELLO EKRANI: Sadece Kazananı Tebrik Eder, Sıralama/Veritabanı Kaydı Yapmaz
         document.getElementById('resultScreen2P').style.display = 'block';
         let title = document.getElementById('winner-title-2p');
+        let sub = document.getElementById('winner-sub-2p');
         document.getElementById('winner-score-p1').innerText = p1.score;
         document.getElementById('winner-score-p2').innerText = p2.score;
 
-        if(p1.score > p2.score) { title.innerText = "🔴 Kırmızı Takım Kazandı!"; title.style.color = "#EF4444"; }
-        else if(p2.score > p1.score) { title.innerText = "🔵 Mavi Takım Kazandı!"; title.style.color = "#3B82F6"; }
-        else { title.innerText = "🤝 Berabere!"; title.style.color = "#10B981"; }
+        if(p1.score > p2.score) {
+          title.innerText = "🔴 Kırmızı Takım Kazandı!";
+          title.style.color = "#EF4444";
+          sub.innerText = "Tebrikler! Kırmızı Takım üstün bir mücadeleyle düelloyu galip tamamladı!";
+          playFanfareSound(1);
+        } else if(p2.score > p1.score) {
+          title.innerText = "🔵 Mavi Takım Kazandı!";
+          title.style.color = "#3B82F6";
+          sub.innerText = "Tebrikler! Mavi Takım üstün bir mücadeleyle düelloyu galip tamamladı!";
+          playFanfareSound(1);
+        } else {
+          title.innerText = "🤝 Dostluk Kazandı! Berabere!";
+          title.style.color = "#10B981";
+          sub.innerText = "İki takım da eşit puan toplayarak muhteşem bir mücadele sergiledi!";
+        }
       }
     }
 
